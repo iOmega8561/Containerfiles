@@ -1,0 +1,9 @@
+{
+  "subsonicUrl": "http://host.containers.internal:4533",
+  "user": {
+    "username": "giuseppe",
+    "password": "example-password"
+  },
+  "discordToken": "example-token",
+  "caCertsPath": "/etc/ssl/certs/ca-certificates.crt"
+}
