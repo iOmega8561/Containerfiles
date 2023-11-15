@@ -1,0 +1,17 @@
+FROM docker.io/alpine:latest
+
+RUN apk update
+RUN apk add --no-cache --update musl musl-utils musl-locales tzdata
+
+RUN echo 'export LC_ALL=en_GB.UTF-8' >> /etc/profile.d/locale.sh && \
+  sed -i 's|LANG=C.UTF-8|LANG=en_GB.UTF-8|' /etc/profile.d/locale.sh
+
+RUN echo 'export LC_ALL=it_IT.UTF-8' >> /etc/profile.d/locale.sh && \
+  sed -i 's|LANG=C.UTF-8|LANG=it_IT.UTF-8|' /etc/profile.d/locale.sh
+
+RUN apk add bash xrdp xorgxrdp xorg-server xfce4 faenza-icon-theme xfce4-terminal firefox
+RUN echo startxfce4 > /etc/X11/xinit/xinitrc.d/xfce4
+
+RUN echo -e "rdesktop\nrdesktop" | passwd
+
+CMD ["/bin/bash", "-c", "xrdp-sesman;xrdp --nodaemon"]
