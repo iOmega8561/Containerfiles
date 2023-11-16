@@ -10,4 +10,4 @@ RUN mkdir -p /root/.config/disopy
 
 COPY ./config.json /root/.config/disopy/disopy.json
 
-CMD ["disopy"]
+ENTRYPOINT disopy
