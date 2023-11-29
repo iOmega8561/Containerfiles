@@ -3,11 +3,16 @@ FROM docker.io/python:3.11.5
 RUN apt update
 
 RUN apt install --yes ffmpeg --no-install-recommends
-
+RUN apt clean
 RUN pip install --no-cache-dir disopy
 
-RUN mkdir -p /root/.config/disopy
+RUN useradd -u 1000 -m default
 
-COPY ./config.json /root/.config/disopy/disopy.json
+RUN mkdir -p /home/default/.config/disopy
+COPY ./config.json /home/default/.config/disopy/disopy.json
+RUN chown -R default:default /home/default/
+
+USER default
+WORKDIR /home/default
 
 ENTRYPOINT disopy
