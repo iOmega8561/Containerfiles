@@ -14,7 +14,7 @@ RUN git clone https://aur.archlinux.org/uxplay.git
 
 WORKDIR /home/default/uxplay
 
-RUN makepkg -si --noconfirm
+RUN makepkg -si --noconfirm --needed
 
 WORKDIR /home/default
 
