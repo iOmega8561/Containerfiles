@@ -8,7 +8,8 @@ RUN install -o default -g default -d /run/user/1000
 WORKDIR /home/default
 USER default
 
-RUN sudo pacman -Sy --noconfirm sudo git
+RUN sudo pacman -Sy --noconfirm sudo git pipewire \
+            wireplumber pipewire-alsa alsa-utils
 
 RUN git clone https://aur.archlinux.org/uxplay.git
 
