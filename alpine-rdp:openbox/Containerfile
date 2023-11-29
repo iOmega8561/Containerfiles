@@ -19,6 +19,6 @@ RUN echo -e "rdesktop\nrdesktop" | passwd
 
 COPY ./menu.xml /etc/xdg/openbox/menu.xml
 
-COPY ./rdpstart.sh /usr/local/bin/rdpstart
-RUN chmod +x /usr/local/bin/rdpstart
-ENTRYPOINT /usr/local/bin/rdpstart
+COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
+RUN chmod +x /usr/local/bin/ct-entrypoint
+ENTRYPOINT /usr/local/bin/ct-entrypoint
