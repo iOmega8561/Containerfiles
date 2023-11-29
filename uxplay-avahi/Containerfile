@@ -4,6 +4,7 @@ RUN pacman-key --init
 
 RUN useradd -m default
 RUN echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
+RUN install -o default -g default -d /run/user/1000
 WORKDIR /home/default
 USER default
 
@@ -20,5 +21,7 @@ WORKDIR /home/default
 RUN pacman -Qdtq | sudo pacman -Rcns --noconfirm -
 RUN sudo pacman -Sc --noconfirm
 RUN rm -fr /home/default/uxplay
+
+ENV XDG_RUNTIME_DIR /run/user/1000
 
 ENTRYPOINT uxplay
