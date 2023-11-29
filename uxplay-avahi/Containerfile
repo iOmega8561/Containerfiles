@@ -2,14 +2,14 @@ FROM docker.io/archlinux:base-devel
 
 RUN pacman-key --init
 
-RUN useradd -m default
+RUN pacman -Sy --noconfirm sudo git pipewire \
+        wireplumber pipewire-alsa alsa-utils
+
+RUN useradd -u 1000 -m default
 RUN echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
 RUN install -o default -g default -d /run/user/1000
 WORKDIR /home/default
 USER default
-
-RUN sudo pacman -Sy --noconfirm sudo git pipewire \
-            wireplumber pipewire-alsa alsa-utils
 
 RUN git clone https://aur.archlinux.org/uxplay.git
 
