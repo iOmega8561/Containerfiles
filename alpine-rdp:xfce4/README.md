@@ -13,7 +13,7 @@ Once built, simply run the container with the following command
 ```
 # ROOTLESS
 podman run -it --rm \
-    --userns=keep-id \
+    --userns=keep-id \ # Optionally map user id (rl podman)
     -p $PORTNUMBER:3389/tcp \
     -v $VOLUMENAME:/home/default \ # Optionally mount the home directory
     localhost/alpine-rdp:xfce4
