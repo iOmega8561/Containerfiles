@@ -11,7 +11,6 @@ It is possible to change the password prior to building the container by editing
 Once built, simply run the container with the following command
 
 ```
-# ROOTLESS
 podman run -it --rm \
     --userns=keep-id \ # Optionally map user id (rl podman)
     -p $PORTNUMBER:3389/tcp \
