@@ -1,3 +1,3 @@
 #!/bin/sh
-xrdp-sesman
-xrdp --nodaemon
+sudo xrdp-sesman
+sudo xrdp --nodaemon
