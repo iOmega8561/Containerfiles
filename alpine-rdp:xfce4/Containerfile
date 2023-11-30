@@ -19,5 +19,5 @@ COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
 RUN chmod +x /usr/local/bin/ct-entrypoint
 
 USER default
-
+EXPOSE 3389
 ENTRYPOINT /usr/local/bin/ct-entrypoint
