@@ -16,7 +16,7 @@ podman run -it --rm \
     -e DISPLAY="$DISPLAY" \
     localhost/uxplay:latest
 
-# ROOTFULL
+# ROOTFUL
 sudo podman run -it --rm \
     --network host \
     -v $XDG_RUNTIME_DIR/pipewire-0:$XDG_RUNTIME_DIR/pipewire-0 \
