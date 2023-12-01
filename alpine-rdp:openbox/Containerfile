@@ -22,6 +22,7 @@ RUN chmod +x /usr/local/bin/ct-entrypoint
 USER default
 WORKDIR /home/default
 COPY --chown=default ./openbox /home/default/.config/openbox/
+RUN mkdir -p .themes && tar -xzvf .config/openbox/Black.obt -C .themes/
 
 EXPOSE 3389/tcp
 ENTRYPOINT /usr/local/bin/ct-entrypoint
