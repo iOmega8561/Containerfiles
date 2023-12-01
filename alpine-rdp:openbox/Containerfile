@@ -19,6 +19,7 @@ COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
 RUN chmod +x /usr/local/bin/ct-entrypoint
 
 USER default
+WORKDIR /home/default
 COPY --chown=default ./openbox /home/default/.config/openbox/
 
 EXPOSE 3389/tcp
