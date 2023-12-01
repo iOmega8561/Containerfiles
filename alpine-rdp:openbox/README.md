@@ -1,5 +1,5 @@
 # Remote Desktop (openbox flavour)
-This container/image is based upon the official Alpine Linux image and packs a basic, ready to use, xfce4 desktop with a pre-configured xrdp daemon.
+This container/image is based upon the official Alpine Linux image and packs a basic, ready to use, openbox desktop with a pre-configured xrdp daemon.
 
 It exposes port 3389 by default. To connect with a Remote Desktop client, use the default credentials:
 
