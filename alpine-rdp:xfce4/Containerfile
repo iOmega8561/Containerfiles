@@ -19,5 +19,7 @@ COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
 RUN chmod +x /usr/local/bin/ct-entrypoint
 
 USER default
+WORKDIR /home/default
+
 EXPOSE 3389/tcp
 ENTRYPOINT /usr/local/bin/ct-entrypoint
