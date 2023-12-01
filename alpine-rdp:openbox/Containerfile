@@ -12,8 +12,6 @@ RUN apk add --no-cache openssh xrdp xorgxrdp xorg-server adwaita-icon-theme\
 RUN echo -e "#!/bin/sh\nexec openbox-session" > /etc/X11/xinit/xinitrc.d/openbox
 RUN chmod +x /etc/X11/xinit/xinitrc.d/openbox
 
-COPY ./menu.xml /etc/xdg/openbox/menu.xml
-
 RUN echo -e "alpinerdp\nalpinerdp" | adduser -u 1000 default
 RUN echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
 
@@ -21,5 +19,8 @@ COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
 RUN chmod +x /usr/local/bin/ct-entrypoint
 
 USER default
+RUN mkdir -p /home/default/.config/
+COPY ./openbox /home/default/.config/openbox/
+
 EXPOSE 3389/tcp
 ENTRYPOINT /usr/local/bin/ct-entrypoint
