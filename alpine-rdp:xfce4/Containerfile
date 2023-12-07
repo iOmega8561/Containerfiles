@@ -1,20 +1,20 @@
 FROM docker.io/alpine:latest
 
-RUN apk update
-RUN apk add --no-cache --update musl musl-utils musl-locales tzdata
+RUN apk update && \
+    apk add --no-cache --update musl musl-utils musl-locales tzdata
 
 RUN echo 'export LC_ALL=it_IT.UTF-8' >> /etc/profile.d/locale.sh && \
-  sed -i 's|LANG=C.UTF-8|LANG=it_IT.UTF-8|' /etc/profile.d/locale.sh && \
-  ln -s /usr/share/zoneinfo/Europe/Rome /etc/localtime
+    sed -i 's|LANG=C.UTF-8|LANG=it_IT.UTF-8|' /etc/profile.d/locale.sh && \
+    ln -s /usr/share/zoneinfo/Europe/Rome /etc/localtime
 
 RUN apk add --no-cache openssh xrdp xorgxrdp xorg-server xfce4 \
-  faenza-icon-theme xfce4-terminal firefox nano sudo
+        faenza-icon-theme xfce4-terminal firefox nano sudo
 
-RUN echo -e "#!/bin/sh\nexec startxfce4" > /etc/X11/xinit/xinitrc.d/xfce4
-RUN chmod +x /etc/X11/xinit/xinitrc.d/xfce4
+RUN echo -e "#!/bin/sh\nexec startxfce4" > /etc/X11/xinit/xinitrc.d/xfce4 && \
+    chmod +x /etc/X11/xinit/xinitrc.d/xfce4
 
-RUN echo -e "alpinerdp\nalpinerdp" | adduser -u 1000 default
-RUN echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
+RUN echo -e "alpinerdp\nalpinerdp" | adduser -u 1000 default && \
+    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
 
 COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
 RUN chmod +x /usr/local/bin/ct-entrypoint
