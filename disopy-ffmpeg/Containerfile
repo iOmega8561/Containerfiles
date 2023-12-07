@@ -1,14 +1,13 @@
 FROM docker.io/python:3.11.5
 
-RUN apt update
+RUN apt update && \
+    apt install --yes --no-install-recommends ffmpeg && \
+    apt clean
 
-RUN apt install --yes ffmpeg --no-install-recommends
-RUN apt clean
 RUN pip install --no-cache-dir disopy
 
 RUN useradd -u 1000 -m default
 
-RUN mkdir -p /home/default/.config/disopy
 COPY --chown=default ./config.json /home/default/.config/disopy/disopy.json
 
 USER default
