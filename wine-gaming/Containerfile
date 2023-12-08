@@ -3,7 +3,7 @@ FROM docker.io/archlinux:base-devel
 RUN echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" | tee -a /etc/pacman.conf && \
     pacman-key --init && \
     pacman -Syyu --noconfirm sudo git mesa-utils lib32-mesa-utils wireplumber \
-        pipewire pipewire-alsa alsa-utils lib32-pipewire wine winetricks
+        pipewire pipewire-alsa alsa-utils lib32-pipewire lib32-gnutls wine winetricks
 
 RUN useradd -u 1000 -m default && \
     echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default && \
@@ -39,8 +39,8 @@ RUN cd && \
 RUN sudo pacman -Scc --noconfirm
 
 ENV XDG_RUNTIME_DIR /run/user/1000
-ENV GAMESDIR /games
 WORKDIR /games
+VOLUME /home/default
 VOLUME /games
 
-ENTRYPOINT /usr/local/bin/ct-entrypoint
+ENTRYPOINT ["/usr/local/bin/ct-entrypoint"]
