@@ -1,0 +1,46 @@
+FROM docker.io/archlinux:base-devel
+
+RUN echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" | tee -a /etc/pacman.conf && \
+    pacman-key --init && \
+    pacman -Syyu --noconfirm sudo git mesa-utils lib32-mesa-utils wireplumber \
+        pipewire pipewire-alsa alsa-utils lib32-pipewire wine winetricks
+
+RUN useradd -u 1000 -m default && \
+    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default && \
+    install -o default -g default -d /run/user/1000 && \
+    install -o default -g default -d /games
+
+COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
+RUN chmod +x /usr/local/bin/ct-entrypoint
+
+USER default
+
+RUN cd && \
+    git clone https://aur.archlinux.org/wine-ge-custom-bin.git && \
+    cd wine-ge-custom-bin && \
+    makepkg -si --noconfirm --needed --rmdeps --clean && \
+    cd && \
+    rm -fr wine-ge-custom-bin
+
+RUN cd && \
+    git clone https://aur.archlinux.org/dxvk-bin.git && \
+    cd dxvk-bin && \
+    makepkg -si --noconfirm --needed --rmdeps --clean && \
+    cd && \
+    rm -fr dxvk-bin
+
+RUN cd && \
+    git clone https://aur.archlinux.org/vkd3d-proton-bin.git && \
+    cd vkd3d-proton-bin && \
+    makepkg -si --noconfirm --needed --rmdeps --clean && \
+    cd && \
+    rm -fr vkd3d-proton-bin
+
+RUN sudo pacman -Scc --noconfirm
+
+ENV XDG_RUNTIME_DIR /run/user/1000
+ENV GAMESDIR /games
+WORKDIR /games
+VOLUME /games
+
+ENTRYPOINT /usr/local/bin/ct-entrypoint
