@@ -12,6 +12,7 @@ podman run -it --rm \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rslave \
     -e DISPLAY="$DISPLAY" \
     -v /dev/dri:/dev/dri:rslave \
+    -e GAME="somegame" \
     -e NVIDIA=1 \
     -v /dev/nvidia0:/dev/nvidia0 \
     -v /dev/nvidia-caps:/dev/nvidia-caps:rslave \
