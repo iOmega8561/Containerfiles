@@ -13,4 +13,4 @@ COPY --chown=default ./config.json /home/default/.config/disopy/disopy.json
 USER default
 WORKDIR /home/default
 
-ENTRYPOINT ["/usr/bin/disopy"]
+ENTRYPOINT ["/usr/local/bin/disopy"]
