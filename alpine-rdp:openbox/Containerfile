@@ -27,4 +27,4 @@ RUN mkdir -p .themes && \
     tar -xzvf .config/openbox/Black.obt -C .themes/
 
 EXPOSE 3389/tcp
-ENTRYPOINT /usr/local/bin/ct-entrypoint
+ENTRYPOINT ["/usr/local/bin/ct-entrypoint"]

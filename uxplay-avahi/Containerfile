@@ -21,4 +21,4 @@ RUN sudo pacman -Scc --noconfirm
 
 ENV XDG_RUNTIME_DIR /run/user/1000
 
-ENTRYPOINT uxplay
+ENTRYPOINT ["/usr/bin/uxplay"]

@@ -23,4 +23,4 @@ USER default
 WORKDIR /home/default
 
 EXPOSE 3389/tcp
-ENTRYPOINT /usr/local/bin/ct-entrypoint
+ENTRYPOINT ["/usr/local/bin/ct-entrypoint"]
