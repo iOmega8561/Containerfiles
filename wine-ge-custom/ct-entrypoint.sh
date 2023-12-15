@@ -2,25 +2,35 @@
 
 export ARGS="$@"
 
-export PATH="/opt/wine-ge-custom/bin:$PATH"
-
-if [[ $NVIDIA -eq 1 ]]
+if ! [ -z $GAME ]
 then
-    echo "######### Installing NVIDIA Drivers ... ##########"
-    echo "##################################################"
-    echo -e "\n\n"
-    sudo pacman -Syu nvidia-utils lib32-nvidia-utils --noconfirm --needed
-    sudo pacman -Scc --noconfirm
-fi
+    export WINEPREFIX=/games/$GAME/prefix
 
-if [[ -z "${GAME}" ]]
-then
-    if [ $# -eq 0 ]
+    if ! [ -f /games/$GAME/wrapper.sh ]
     then
-        exec /bin/bash
+        echo "##################################################"
+        echo "######### FATAL: Game wrapper not found ##########"
+        echo "##################################################"
+        exit 1
     fi
 
-    exec /bin/bash -c "$ARGS"
+    chmod +x /games/$GAME/wrapper.sh
+    exec /games/$GAME/wrapper.sh $ARGS
 fi
 
-exec $GAME/game.sh
+if [[ -z "${ARGS}" ]]
+then
+    echo -e "\n"
+    echo "########## Updating system packages ... ##########"
+    echo "##################################################"
+    sudo pacman -Syu --noconfirm --needed > /dev/null 2>&1
+    sudo pacman -Scc --noconfirm > /dev/null 2>&1
+
+    echo -e "\n"
+    echo "############ Entering sleep state ... ############"
+    echo "##################################################"
+    trap exit INT TERM
+    sleep infinity
+fi
+
+exec $ARGS
