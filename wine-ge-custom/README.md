@@ -33,3 +33,4 @@ When you are done installing everything, place a wrapper script in the game fold
 ```
 podman exec -it -e GAME="GameName" wine-ge-custom ct-entrypoint arg1 arg2 ... argN
 ```
+It will start your helper script and pass every argument to it
