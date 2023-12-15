@@ -19,7 +19,7 @@ RUN chmod +x /usr/local/bin/ct-entrypoint
 COPY ./ct-winesetup.sh /usr/local/bin/ct-winesetup
 RUN chmod +x /usr/local/bin/ct-winesetup
 
-COPY ./config/* /etc/
+COPY ./config-files/* /etc/
 
 USER default
 
@@ -51,23 +51,17 @@ RUN cd && \
     cd && \
     rm -fr vkd3d-proton-bin
 
-
 RUN sudo pacman -Scc --noconfirm
 
 ENV NVIDIA $NVIDIA
 ENV PATH /opt/wine-ge-custom/bin:$PATH
 ENV XDG_RUNTIME_DIR /run/user/1000
-ENV WINEPREFIX /games/defaultprefix
-ENV DXVK_NVAPI_LOG_LEVEL none
-ENV DXVK_ENABLE_NVAPI=1
-ENV WINEDLLOVERRIDES dxgi,nvapi64=n
-ENV VKD3D_CONFIG dxr11
+ENV DXVK_ENABLE_NVAPI 1
+ENV MANGOHUD 1
 ENV DXVK_CONFIG_FILE /etc/dxvk.conf
 ENV MANGOHUD_CONFIGFILE /etc/mangohud.conf
-ENV MANGOHUD 1
 
 WORKDIR /games
-VOLUME /home/default
 VOLUME /games
 
 ENTRYPOINT ["/usr/local/bin/ct-entrypoint"]
