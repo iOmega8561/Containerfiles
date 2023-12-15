@@ -8,7 +8,6 @@ Create your container with the following example (Omit all the nvidia lines if y
 podman container create --replace --name my-container \
     --userns=keep-id \
     -v /where_games_are_stored:/games \
-    -v /where_data_gets_stored:/home/default \
     -v $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR:rslave \
     -v /tmp:/tmp:rslave \
     -e DISPLAY="$DISPLAY" \
