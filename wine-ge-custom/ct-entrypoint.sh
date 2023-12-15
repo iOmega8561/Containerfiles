@@ -14,6 +14,14 @@ then
         exit 1
     fi
 
+    export DXVK_STATE_CACHE_PATH=/games/$GAME
+	export VKD3D_SHADER_CACHE_PATH=/games/$GAME
+
+    cd /games/$GAME
+
+    winetricks sandbox
+    sleep 5s
+
     chmod +x /games/$GAME/wrapper.sh
     exec /games/$GAME/wrapper.sh $ARGS
 fi
