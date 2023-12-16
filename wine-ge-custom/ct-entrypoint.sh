@@ -23,7 +23,9 @@ then
     sleep 5s
 
     chmod +x /games/$GAME/wrapper.sh
-    exec /games/$GAME/wrapper.sh $ARGS
+    /games/$GAME/wrapper.sh $ARGS
+
+    exec wineserver --wait
 fi
 
 if [[ -z "${ARGS}" ]]

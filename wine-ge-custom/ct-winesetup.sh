@@ -44,11 +44,16 @@ else
     setup_vkd3d_proton install > /dev/null 2>&1
     sleep 5s
 
-    winetricks sandbox
-    sleep 5s
+    echo -e "\n"
+    echo "########### Sandboxing WINEPREFIX ... ############"
+    echo "##################################################"
+
+    winetricks sandbox > /dev/null 2>&1
 
     if [[ $NVIDIA -eq 1 ]]
     then
         cp /usr/lib/nvidia/wine/* $WINEPREFIX/dosdevices/c:/windows/system32/
     fi
+
+    exec wineserver --wait
 fi
