@@ -2,11 +2,11 @@
 
 export ARGS="$@"
 
-if ! [ -z $GAME ]
+if ! [ -z "$GAME" ]
 then
-    export WINEPREFIX=/games/$GAME/prefix
+    export WINEPREFIX="/games/$GAME/prefix"
 
-    if ! [ -f /games/$GAME/wrapper.sh ]
+    if ! [ -f "/games/$GAME/wrapper.sh" ]
     then
         echo "##################################################"
         echo "######### FATAL: Game wrapper not found ##########"
@@ -14,16 +14,16 @@ then
         exit 1
     fi
 
-    export DXVK_STATE_CACHE_PATH=/games/$GAME
-	export VKD3D_SHADER_CACHE_PATH=/games/$GAME
+    export DXVK_STATE_CACHE_PATH="/games/$GAME"
+	export VKD3D_SHADER_CACHE_PATH="/games/$GAME"
 
-    cd /games/$GAME
+    cd "/games/$GAME"
 
     winetricks sandbox
     sleep 5s
 
-    chmod +x /games/$GAME/wrapper.sh
-    /games/$GAME/wrapper.sh $ARGS
+    chmod +x "/games/$GAME/wrapper.sh"
+    "/games/$GAME/wrapper.sh" $ARGS
 
     exec wineserver --wait
 fi
