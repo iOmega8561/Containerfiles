@@ -1,16 +1,16 @@
 #!/bin/sh
 
-if [ -z $GAME ]
+if [ -z "$GAME" ]
 then
     echo "GAME environment variable is not set. Exiting..."
     exit 1
 fi
 
-mkdir -p /games/$GAMES
+mkdir -p "/games/$GAMES"
 
-export WINEPREFIX=/games/$GAME/prefix
+export WINEPREFIX="/games/$GAME/prefix"
 
-if [ -d $WINEPREFIX ]
+if [ -d "$WINEPREFIX" ]
 then
     echo -e "\n"
     echo "## WINEPREFIX found, skipping configuration ... ##"
@@ -52,7 +52,7 @@ else
 
     if [[ $NVIDIA -eq 1 ]]
     then
-        cp /usr/lib/nvidia/wine/* $WINEPREFIX/dosdevices/c:/windows/system32/
+        cp /usr/lib/nvidia/wine/* "$WINEPREFIX/dosdevices/c:/windows/system32/"
     fi
 
     exec wineserver --wait
