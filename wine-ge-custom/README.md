@@ -8,7 +8,7 @@ Create your container with the following example (Omit all the nvidia lines if y
 podman container create --replace --name my-container \
     --userns=keep-id \
     -v /where_games_are_stored:/games \
-    -v $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR:rslave \
+    -v $XDG_RUNTIME_DIR:/run/user/1000:rslave \
     -v /tmp:/tmp:rslave \
     -e DISPLAY="$DISPLAY" \
     -v /dev/dri:/dev/dri:rslave \
@@ -19,9 +19,13 @@ podman container create --replace --name my-container \
     -v /dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools \
     localhost/wine-gaming:latest
 ```
-The start the container, it will update system packages and then will go to sleep
+Then start the container, it will will go to sleep and remain active
 ```
 podman start my-container
+```
+Install nvidia userspace drivers with the included helper
+```
+podman exec -it my-container ct-nvidiasetup
 ```
 To create a new WINE prefix at path /where_games_are_stored/$GAME_NAME/prefix, you can use the bundled helper script with the following command
 ```
