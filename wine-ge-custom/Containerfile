@@ -1,25 +1,17 @@
 FROM docker.io/archlinux:base-devel
 
-ARG NVIDIA 0
-
 RUN echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" | tee -a /etc/pacman.conf && \
     pacman-key --init && \
-    pacman -Syyu --noconfirm sudo git mesa-utils lib32-mesa-utils mangohud lib32-mangohud \
-        wireplumber pipewire pipewire-alsa alsa-utils lib32-pipewire lib32-gnutls wine winetricks && \
-    if [ $NVIDIA -eq 1 ]; then pacman -Syyu --noconfirm nvidia-utils lib32-nvidia-utils; fi
+    pacman -Syyu --noconfirm git wine winetricks wireplumber pipewire \
+        pipewire-alsa alsa-utils lib32-pipewire lib32-gnutls
 
 RUN useradd -u 1000 -m default && \
     echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default && \
     install -o default -g default -d /run/user/1000 && \
     install -o default -g default -d /games
 
-COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
-RUN chmod +x /usr/local/bin/ct-entrypoint
-
-COPY ./ct-winesetup.sh /usr/local/bin/ct-winesetup
-RUN chmod +x /usr/local/bin/ct-winesetup
-
-COPY ./config-files/* /etc/
+COPY ./helper-scripts/* /usr/local/bin/
+RUN chmod +x /usr/local/bin/ct-*
 
 USER default
 
@@ -53,13 +45,10 @@ RUN cd && \
 
 RUN sudo pacman -Scc --noconfirm
 
-ENV NVIDIA $NVIDIA
 ENV PATH /opt/wine-ge-custom/bin:$PATH
 ENV XDG_RUNTIME_DIR /run/user/1000
 ENV DXVK_ENABLE_NVAPI 1
-ENV MANGOHUD 1
-ENV DXVK_CONFIG_FILE /etc/dxvk.conf
-ENV MANGOHUD_CONFIGFILE /etc/mangohud.conf
+ENV DXVK_CONFIG "dxgi.customVendorId = 10de"
 
 WORKDIR /games
 VOLUME /games
