@@ -19,7 +19,7 @@ then
 
     cd "/games/$GAME"
 
-    winetricks sandbox
+    winetricks isolate_home > /dev/null 2>&1
     sleep 5s
 
     chmod +x "/games/$GAME/wrapper.sh"
@@ -30,16 +30,15 @@ fi
 
 if [[ -z "${ARGS}" ]]
 then
-    echo -e "\n"
-    echo "########## Updating system packages ... ##########"
-    echo "##################################################"
-    sudo pacman -Syu --noconfirm --needed > /dev/null 2>&1
-    sudo pacman -Scc --noconfirm > /dev/null 2>&1
-
+    # echo -e "\n"
+    # echo "########## Updating system packages ... ##########"
+    # echo "##################################################"
+    # sudo pacman -Syu --noconfirm --needed > /dev/null 2>&1
+    # sudo pacman -Scc --noconfirm > /dev/null 2>&1
+    
     echo -e "\n"
     echo "############ Entering sleep state ... ############"
     echo "##################################################"
-    trap exit INT TERM
     sleep infinity
 fi
 

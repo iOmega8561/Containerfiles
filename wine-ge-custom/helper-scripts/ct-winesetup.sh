@@ -48,7 +48,7 @@ else
     echo "########### Sandboxing WINEPREFIX ... ############"
     echo "##################################################"
 
-    winetricks sandbox > /dev/null 2>&1
+    winetricks isolate_home > /dev/null 2>&1
 
     if [[ $NVIDIA -eq 1 ]]
     then
