@@ -1,5 +1,5 @@
-# UxPlay
-This image is based upon archlinux:base-devel and packs an Open Soource AirPlay server
+# AirPlay Server (UxPlay OSS project)
+This image is based upon the official alpine container and packs an OSS AirPlay server
 
 Although it is definitely possible to run the mDNS server inside the container, the best case scenario is to bind-mount the host sockets to simplify network discovery.
 
@@ -12,5 +12,5 @@ podman run -it --rm \
     -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rslave \
     -e DISPLAY="$DISPLAY" \
-    localhost/uxplay:latest
+    localhost/airplay-server:latest
 ```
