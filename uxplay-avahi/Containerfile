@@ -1,24 +1,33 @@
-FROM docker.io/archlinux:base-devel
+FROM docker.io/archlinux:base-devel as stage1
 
 RUN pacman-key --init && \
-    pacman -Syyu --noconfirm git pipewire \
-        wireplumber pipewire-alsa pipewire-jack alsa-utils
-
-RUN useradd -u 1000 -m default && \
-    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default && \
-    install -o default -g default -d /run/user/1000
+    pacman -Syyu --noconfirm git && \
+    useradd -u 1000 -m default && \
+    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
 
 WORKDIR /home/default
 USER default
 
 RUN git clone https://aur.archlinux.org/uxplay.git && \
     cd uxplay && \
-    makepkg -si --noconfirm --needed --rmdeps --clean && \
-    cd && \
-    rm -fr uxplay
+    makepkg -s --noconfirm --needed --rmdeps --clean
 
-RUN sudo pacman -Rcns git --noconfirm && \
-    sudo pacman -Scc --noconfirm
+FROM docker.io/archlinux:latest
+
+RUN useradd -u 1000 -m default && \
+    install -o default -g default -d /run/user/1000
+
+COPY --from=stage1 /home/default/uxplay/uxplay*.pkg.tar.zst /tmp/uxplay.pkg.tar.zst
+
+RUN pacman-key --init && \
+    pacman -Syyu --noconfirm --needed wireplumber \
+        pipewire pipewire-alsa alsa-utils && \
+    pacman -U /tmp/uxplay.pkg.tar.zst --noconfirm && \
+    rm /tmp/uxplay.pkg.tar.zst && \
+    pacman -Scc --noconfirm
+
+WORKDIR /home/default
+USER default
 
 ENV XDG_RUNTIME_DIR /run/user/1000
 
