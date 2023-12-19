@@ -1,6 +1,7 @@
-FROM docker.io/archlinux:latest
+FROM docker.io/archlinux:base-devel
+
 RUN pacman-key --init && \
-    pacman -Syyu --noconfirm base-devel sudo git pipewire \
+    pacman -Syyu --noconfirm git pipewire \
         wireplumber pipewire-alsa pipewire-jack alsa-utils
 
 RUN useradd -u 1000 -m default && \
@@ -16,7 +17,7 @@ RUN git clone https://aur.archlinux.org/uxplay.git && \
     cd && \
     rm -fr uxplay
 
-RUN sudo pacman -Rcns git base-devel --noconfirm && \
+RUN sudo pacman -Rcns git --noconfirm && \
     sudo pacman -Scc --noconfirm
 
 ENV XDG_RUNTIME_DIR /run/user/1000
