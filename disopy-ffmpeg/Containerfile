@@ -1,16 +1,14 @@
-FROM docker.io/python:3.11.5
+FROM docker.io/alpine:latest
 
-RUN apt update && \
-    apt install --yes --no-install-recommends ffmpeg && \
-    apt clean
+RUN apk update && \
+    apk add --no-cache --update python3 pipx ffmpeg && \
+    adduser -D -u 1000 default
 
-RUN pip install --no-cache-dir disopy
+WORKDIR /home/default
+USER default
 
-RUN useradd -u 1000 -m default
+RUN pipx install disopy
 
 COPY --chown=default ./config.json /home/default/.config/disopy/disopy.json
 
-USER default
-WORKDIR /home/default
-
-ENTRYPOINT ["/usr/local/bin/disopy"]
+ENTRYPOINT ["/home/default/.local/bin/disopy"]
