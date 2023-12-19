@@ -11,7 +11,8 @@ RUN useradd -u 1000 -m default && \
     install -o default -g default -d /games
 
 COPY ./helper-scripts/* /usr/local/bin/
-RUN chmod +x /usr/local/bin/ct-*
+RUN for f in /usr/local/bin/*; do mv $f ${f%.sh}; done && \
+    chmod +x /usr/local/bin/ct-*
 
 USER default
 
