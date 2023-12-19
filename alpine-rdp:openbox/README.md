@@ -13,6 +13,7 @@ Once built, simply run the container with the following command
 ```
 podman run -it --rm \
     --userns=keep-id \ # Optionally map user id (rl podman)
+    -e PASSWD="your-password" \
     -p $PORTNUMBER:3389/tcp \
     -v $VOLUMENAME:/home/default \ # Optionally mount the home directory
     localhost/alpine-rdp:openbox
