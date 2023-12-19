@@ -7,11 +7,10 @@ Assuming a user with uid=1000 and gid=1000, with podman's command-line this imag
 ```
 podman run -it --rm \
     --network host \
-    --userns=keep-id \ # Optionally map user id (rl podman)
+    --userns=keep-id \
     -v $XDG_RUNTIME_DIR/pipewire-0:$XDG_RUNTIME_DIR/pipewire-0 \
-    -v $XAUTHORITY:$XAUTHORITY:ro \
     -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket \
-    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -v /tmp/.X11-unix:/tmp/.X11-unix:rslave \
     -e DISPLAY="$DISPLAY" \
     localhost/uxplay:latest
 ```
