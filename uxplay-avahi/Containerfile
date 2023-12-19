@@ -1,34 +1,30 @@
-FROM docker.io/archlinux:base-devel as stage1
+FROM docker.io/alpine:latest as STAGE1
 
-RUN pacman-key --init && \
-    pacman -Syyu --noconfirm git && \
-    useradd -u 1000 -m default && \
-    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
+WORKDIR /root
 
-WORKDIR /home/default
-USER default
+RUN apk update && \
+    apk add --no-cache --update \
+        build-base git cmake pkgconfig \
+        libx11-dev openssl-dev libplist-dev avahi-dev \
+        gstreamer-dev gst-plugins-base-dev
 
-RUN git clone https://aur.archlinux.org/uxplay.git && \
-    cd uxplay && \
-    makepkg -s --noconfirm --needed --rmdeps --clean
+RUN git clone https://github.com/FDH2/UxPlay.git && \
+    mkdir build && cd build && cmake ../UxPlay && make
 
-FROM docker.io/archlinux:latest
+FROM docker.io/alpine:latest
 
-RUN useradd -u 1000 -m default && \
+COPY --from=STAGE1 /root/build/uxplay /usr/local/bin/uxplay
+
+RUN apk update && \
+    apk add --no-cache --update openssl libplist avahi avahi-compat-libdns_sd \
+                gst-plugins-base gst-plugins-good gst-plugins-bad gst-libav \
+                wireplumber pipewire pipewire-alsa alsa-utils && \
+    adduser -D -u 1000 default && \
     install -o default -g default -d /run/user/1000
-
-COPY --from=stage1 /home/default/uxplay/uxplay*.pkg.tar.zst /tmp/uxplay.pkg.tar.zst
-
-RUN pacman-key --init && \
-    pacman -Syyu --noconfirm --needed wireplumber \
-        pipewire pipewire-alsa alsa-utils && \
-    pacman -U /tmp/uxplay.pkg.tar.zst --noconfirm && \
-    rm /tmp/uxplay.pkg.tar.zst && \
-    pacman -Scc --noconfirm
-
-WORKDIR /home/default
-USER default
 
 ENV XDG_RUNTIME_DIR /run/user/1000
 
-ENTRYPOINT ["/usr/bin/uxplay"]
+WORKDIR /home/default
+USER default
+
+ENTRYPOINT ["/usr/local/bin/uxplay"]
