@@ -1,0 +1,43 @@
+FROM docker.io/alpine:latest as BASE
+
+RUN apk update && \
+    apk add --no-cache --update sudo musl musl-utils musl-locales tzdata && \
+    echo 'export LC_ALL=it_IT.UTF-8' >> /etc/profile.d/locale.sh && \
+    sed -i 's|LANG=C.UTF-8|LANG=it_IT.UTF-8|' /etc/profile.d/locale.sh && \
+    ln -s /usr/share/zoneinfo/Europe/Rome /etc/localtime
+
+RUN adduser -D -u 1000 default && \
+    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
+
+COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
+RUN chmod +x /usr/local/bin/ct-entrypoint
+
+WORKDIR /home/default
+
+EXPOSE 3389/tcp
+ENTRYPOINT ["/usr/local/bin/ct-entrypoint"]
+
+# XFCE4 Flavour
+FROM BASE as XFCE4
+
+RUN apk add --no-cache openssh xrdp xorgxrdp xorg-server xfce4 \
+        faenza-icon-theme xfce4-terminal firefox nano && \
+    echo -e "#!/bin/sh\nexec startxfce4" > /etc/X11/xinit/xinitrc.d/xfce4 && \
+    chmod +x /etc/X11/xinit/xinitrc.d/xfce4
+
+USER default
+
+# OPENBOX Flavour
+FROM BASE as OPENBOX
+
+RUN apk add --no-cache openssh xrdp xorgxrdp xorg-server adwaita-icon-theme \
+        xfce4-terminal feh tint2 firefox openbox thunar font-dejavu nano && \
+    echo -e "#!/bin/sh\nexec openbox-session" > /etc/X11/xinit/xinitrc.d/openbox && \
+    chmod +x /etc/X11/xinit/xinitrc.d/openbox
+
+USER default
+
+COPY --chown=default ./ob-config.tar.xz /home/default/
+RUN mkdir -p .themes && mkdir -p .config && \
+    tar -xzvf ob-config.tar.xz -C .config/ && \
+    tar -xzvf .config/openbox/Black.obt -C .themes/
