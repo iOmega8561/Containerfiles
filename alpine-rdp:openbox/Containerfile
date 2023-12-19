@@ -12,8 +12,7 @@ RUN apk add --no-cache openssh xrdp xorgxrdp xorg-server adwaita-icon-theme \
     chmod +x /etc/X11/xinit/xinitrc.d/openbox
 
 RUN adduser -D -u 1000 default && \
-    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default && \
-    install -o default -g default -d /var/log/user/1000
+    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
 
 COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
 RUN chmod +x /usr/local/bin/ct-entrypoint
@@ -22,7 +21,6 @@ USER default
 WORKDIR /home/default
 
 COPY --chown=default ./openbox /home/default/.config/openbox/
-COPY --chown=default ./xrdp /home/default/.config/xrdp/
 RUN mkdir -p .themes && \
     tar -xzvf .config/openbox/Black.obt -C .themes/
 
