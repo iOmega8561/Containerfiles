@@ -1,0 +1,17 @@
+FROM docker.io/alpine:latest
+
+RUN apk update && \
+    apk add --no-cache --update unbound wget && \
+    adduser -D -u 1000 default
+
+COPY --chown=default ./unbound.conf /home/default/.config/unbound/
+COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
+RUN chmod +x /usr/local/bin/ct-entrypoint
+
+WORKDIR /home/default
+USER default
+
+EXPOSE 1053/tcp
+EXPOSE 1053/udp
+
+ENTRYPOINT ["/usr/local/bin/ct-entrypoint"]
