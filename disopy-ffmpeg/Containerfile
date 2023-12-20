@@ -9,6 +9,6 @@ USER default
 
 RUN pipx install disopy
 
-COPY --chown=default ./config.json /home/default/.config/disopy/disopy.json
+COPY --chown=default ./disopy.json /home/default/.config/disopy/
 
 ENTRYPOINT ["/home/default/.local/bin/disopy"]
