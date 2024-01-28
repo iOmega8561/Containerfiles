@@ -1,5 +1,5 @@
 # Disopy
-This image is based upon the official Alpine Linux container and packs a version of the Disopy discord bot. FFmpeg is also included since it is required in order for Disopy to be capable of handling audio.
+This image is based upon the official Alpine Linux container and packs a version of the [Disopy](https://pypi.org/project/disopy/) discord bot. FFmpeg is also included since it is required in order for Disopy to be capable of handling audio.
 A compatible Subsonic server is obviously required in order for Disopy to work.
 
 Before building the image, it is required to adjust disopy.json according to your setup, otherwise the container will just exit due to not being able to authenticate with both discord and a working Subsonic server.

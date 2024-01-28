@@ -1,5 +1,5 @@
 # AirPlay Server
-This image is based upon the official alpine container and packs an OSS AirPlay server
+This image is based upon the official alpine container and packs an Open Source [AirPlay Server](https://github.com/FDH2/UxPlay)
 
 Although it is definitely possible to run the mDNS server inside the container, the best case scenario is to bind-mount the host sockets to simplify the process of network discovery.
 
