@@ -1,5 +1,5 @@
 # webNUT
-This container/image is based upon the official Alpine Linux image and packs a web user interface that displays information about the Network UPS Tools' server to which it connects.
+This container/image is based upon the official Alpine Linux image and packs a [fork](https://github.com/jasonhensler/webNUT.git) of [webNUT](https://github.com/rshipp/webNUT), a simple web interface for NUT ([Network UPS Tools](https://networkupstools.org/)) servers, built on Pyramid, Bootstrap, and python-nut2.
 
 Once built, simply run the container with the following command
 
