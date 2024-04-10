@@ -1,13 +1,14 @@
 # Remote Desktop (multi-flavour)
-This container/image is based upon the official Alpine Linux image and packs a basic, ready to use, desktop with a pre-configured xrdp daemon.
+This image is based upon the official Alpine Linux container and packs a basic, ready to use desktop with a pre-configured xrdp server daemon.
+Port 3389 is by default exposed. 
 
-It exposes port 3389 by default. To connect with a Remote Desktop client, use the default credentials:
+Two desktop flavours are included, therefore a target must be explicitly set when building the container (as follows).
+```
+# XFCE or OPENBOX as target
+podman build --target XFCE4 --tag xrdp-server:latest .
+```
 
-USERNAME: default
-PASSWORD: the-password-you-set
-
-At build time a target must be explicitly set.
-Available target (at the moment) are: XFCE4, OPENBOX
+The default username is **default**, the password must be set using the environment variable **PASSWD**
 
 Once built, simply run the container with the following command
 
