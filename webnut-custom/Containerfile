@@ -1,0 +1,22 @@
+FROM docker.io/alpine:latest
+
+RUN apk update && \
+    apk add --no-cache --update python3 py3-pip git && \
+    adduser -D -u 1000 default
+
+COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
+RUN chmod +x /usr/local/bin/ct-entrypoint
+
+WORKDIR /home/default
+USER default
+
+RUN python3 -m venv .pyenv && \
+    source .pyenv/bin/activate && \
+    pip install setuptools nut2 && \
+    git clone https://github.com/jasonhensler/webNUT.git && \
+    pip install -e webNUT/ && \
+    deactivate
+
+EXPOSE 6543/tcp
+
+ENTRYPOINT ["/usr/local/bin/ct-entrypoint"]

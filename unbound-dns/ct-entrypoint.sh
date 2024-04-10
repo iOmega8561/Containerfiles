@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 update_root_hints() {
     wget -S https://www.internic.net/domain/named.cache -O .config/unbound/root.hints

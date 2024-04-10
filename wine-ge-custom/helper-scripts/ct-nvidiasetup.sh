@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 BASE_URL="https://us.download.nvidia.com/XFree86/Linux-x86_64"
 
