@@ -12,10 +12,10 @@ This container provides a ready-to-use instance of [UxPlay](https://github.com/F
 Build the image using the following command:
 
 ```bash
-podman build --tag airplay-server:latest .
+podman build --tag uxplay:latest .
 ```
 
-This command creates a local container image tagged as `airplay-server:latest`.
+This command creates a local container image tagged as `uxplay:latest`.
 
 ## Configuration and Usage
 
@@ -32,7 +32,7 @@ podman run -it --rm \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rslave \
     -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket \
     -e DISPLAY="$DISPLAY" \
-    localhost/airplay-server:latest
+    localhost/uxplay:latest
 ```
 
 #### Wayland Example
@@ -46,7 +46,7 @@ podman run -it --rm \
     -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rslave \
     -e DISPLAY="$DISPLAY" \
-    localhost/airplay-server:latest
+    localhost/uxplay:latest
 ```
 
 ### Notes
