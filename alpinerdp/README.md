@@ -11,7 +11,7 @@ The image includes two desktop flavours:
 Specify the target desktop environment during the build process:
 
 ```bash
-# Replace TARGET with XFCE4 or OPENBOX
+# Replace TARGET with **xfce4** or **openbox**
 podman build --target TARGET --tag alpinerdp:latest .
 ```
 
