@@ -1,10 +1,29 @@
 # Unbound
-This image is based upon the official Alpine Linux container and packs a version of [Unbound](https://nlnetlabs.nl/projects/unbound/about/), a validating, recursive, caching DNS resolver. With the included default configuration, Unbound is set up as a recursive dns server. Root hints are automatically refreshed at start.
 
-Once built, simply run the container with the following command
+This container provides a lightweight and ready-to-use setup for [Unbound](https://nlnetlabs.nl/projects/unbound/about/), a validating, recursive, and caching DNS resolver. The image is based on the official Alpine Linux container and comes preconfigured as a recursive DNS server.
 
+## Features
+- **Recursive DNS Server**: Handles DNS queries recursively.
+- **Automatic Root Hints Refresh**: Updates root hints on container start to ensure up-to-date resolution.
+
+## Building the Image
+
+Build the image using the following command:
+```bash
+podman build --tag unbound:latest .
 ```
+
+## Running the Container
+
+Run the container with:
+```bash
 podman run -it --rm \
     -p 1053:1053 \
-    localhost/unbound-dns:latest
+    localhost/unbound:latest
 ```
+
+### Example Usage
+- Maps port **1053** inside the container to port **1053** on the host.
+- After starting the container, you can configure your local network or devices to use it as a DNS server (e.g., `127.0.0.1:1053`).
+
+This container simplifies deploying Unbound for secure and efficient DNS resolution.
