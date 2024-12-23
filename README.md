@@ -12,7 +12,7 @@ The goal is to leverage the benefits of Podman (especially rootless Podman) to k
 > - Some adjustments might be necessary to make them compatible with your environment.
 > - Test thoroughly before deploying these in your systems.
 >
-> If you encounter issues or have questions, feel free to open an issue, but remember that these Containerfiles reflect my use case first and foremost.
+> Feel free to open an issue, but remember that these Containerfiles reflect my specific use case
 
 ## Why Podman?
 
@@ -24,7 +24,9 @@ I’ve built these Containerfiles with Podman in mind because it offers:
 - **Docker-Compatible Commands**: Transitioning from Docker is seamless.
 - **Lightweight and Flexible**: No daemon, no fuss.
 
-## How to Use This Repository
+## Getting started
+
+### How to Use This Repository
 
 Each directory in this repository contains:
 - A **Containerfile** with the build instructions for creating the container image.
