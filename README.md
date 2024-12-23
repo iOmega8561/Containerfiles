@@ -24,7 +24,7 @@ I’ve built these Containerfiles with Podman in mind because it offers:
 - **Docker-Compatible Commands**: Transitioning from Docker is seamless.
 - **Lightweight and Flexible**: No daemon, no fuss.
 
-## Getting started
+## Getting Started
 
 ### How to Use This Repository
 
