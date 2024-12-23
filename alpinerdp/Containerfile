@@ -1,4 +1,4 @@
-FROM docker.io/alpine:latest as BASE
+FROM docker.io/alpine:latest as base
 
 RUN apk update && \
     apk add --no-cache --update sudo musl musl-utils musl-locales tzdata && \
@@ -18,7 +18,7 @@ EXPOSE 3389/tcp
 ENTRYPOINT ["/usr/local/bin/ct-entrypoint"]
 
 # XFCE4 Flavour
-FROM BASE as XFCE4
+FROM base as xfce4
 
 RUN apk add --no-cache openssh xrdp xorgxrdp xorg-server xfce4 \
         faenza-icon-theme xfce4-terminal firefox nano && \
@@ -28,7 +28,7 @@ RUN apk add --no-cache openssh xrdp xorgxrdp xorg-server xfce4 \
 USER default
 
 # OPENBOX Flavour
-FROM BASE as OPENBOX
+FROM base as openbox
 
 RUN apk add --no-cache openssh xrdp xorgxrdp xorg-server adwaita-icon-theme \
         xfce4-terminal feh tint2 firefox openbox thunar font-dejavu nano && \
