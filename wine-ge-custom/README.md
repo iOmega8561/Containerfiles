@@ -5,7 +5,7 @@ This container provides a pre-configured environment for gaming with **Wine** us
 > [!WARNING]
 >
 > Since when this Containerfile was written, many things have changed for Linux gaming.  
-> This may still work, but it's not supported anymore!
+> This may still work, but it's **not supported** anymore!
 
 ## Use Case
 This container is designed to support multiple games, but games and their respective launchers must be manually installed within the container's environment.
