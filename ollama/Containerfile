@@ -1,0 +1,42 @@
+# Use a minimal Debian base image to keep the container small while retaining
+# glibc compatibility and a familiar userspace environment.
+FROM docker.io/library/debian:stable-slim
+
+# Install only the minimal runtime dependencies required to download and extract
+# the Ollama binary distribution. Clean APT metadata to keep the image small.
+RUN apt update && apt upgrade -y && \
+    apt install curl zstd -y && \
+    apt clean && rm -rf /var/lib/apt/lists/*
+
+# Download the official Ollama binary release and extract it into /usr/local.
+# Remove GPU-related libraries (CUDA, Vulkan) to create a CPU-only image and
+# reduce the final image size and dependency surface.
+RUN curl -fsSL https://ollama.com/download/ollama-linux-amd64.tar.zst | tar x --zstd -C /usr/local && \
+    rm -fr /usr/local/lib/ollama/cuda_v12 && \
+    rm -fr /usr/local/lib/ollama/cuda_v13 && \
+    rm -fr /usr/local/lib/ollama/mlx_cuda_v13 && \
+    rm -fr /usr/local/lib/ollama/vulkan
+
+# Create a non-root user for running Ollama and prepare its working directories.
+# Running the container rootless improves security and aligns well with
+# rootless container runtimes such as Podman.
+RUN useradd -U -u 1000 -m ollama -s /usr/bin/bash && \
+    install -o 1000 -g 1000 -d /home/ollama/.ollama -m 700 && \
+    install -o 1000 -g 1000 -d /home/ollama/.ollama/models -m 700
+
+# Switch to the non-root user for runtime.
+USER ollama
+
+# Default working directory.
+WORKDIR /home/ollama
+
+# Ollama API port.
+EXPOSE 11434
+
+# Configure the location for models and bind address for the server.
+ENV OLLAMA_MODELS=/home/ollama/.ollama/models
+ENV OLLAMA_HOST=0.0.0.0:11434
+
+# Start the Ollama CLI and run the built-in server.
+ENTRYPOINT ["/usr/local/bin/ollama"]
+CMD ["serve"]
