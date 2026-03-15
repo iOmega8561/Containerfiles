@@ -1,4 +1,4 @@
-# AlpineRDP (Multi-Flavoured Remote Desktop Server)
+# RDP (Multi-Flavoured Remote Desktop Server)
 
 This container provides a lightweight, ready-to-use desktop environment with a pre-configured **xrdp** server based on the official Alpine Linux container. It exposes **port 3389** for remote desktop connections.
 
@@ -12,7 +12,7 @@ Specify the target desktop environment during the build process:
 
 ```bash
 # Replace TARGET with **xfce4** or **openbox**
-podman build --target TARGET --tag alpinerdp:latest .
+podman build --target TARGET --tag rdp:latest .
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ podman run -it --rm \
     -e PASSWD="your-password" \
     -p $PORTNUMBER:3389/tcp \
     -v $VOLUMENAME:/home/default \ # Optional: Mount a home directory
-    localhost/alpinerdp:openbox
+    localhost/rdp:openbox
 ```
 
 Replace:
@@ -44,5 +44,5 @@ podman run -it --rm \
     -e PASSWD="securepassword" \
     -p 3390:3389/tcp \
     -v myvolume:/home/default \
-    localhost/alpinerdp:xfce4
+    localhost/rdp:xfce4
 ```
