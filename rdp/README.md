@@ -27,22 +27,7 @@ podman build --target TARGET --tag rdp:latest .
 podman run -it --rm \
     --userns=keep-id \
     -e PASSWD="your-password" \
-    -p $PORTNUMBER:3389/tcp \
-    -v $VOLUMENAME:/home/default \ # Optional: Mount a home directory
+    -p 3389:3389/tcp \
+    -v rdp-data:/home/default \ # Optional: Mount a home directory
     localhost/rdp:openbox
-```
-
-Replace:
-- `$PORTNUMBER` with the port you want to expose on your host.
-- `$VOLUMENAME` with the volume or path you want to mount as the user’s home directory.
-
-### Example
-To use XFCE4 with a mounted home directory:
-```bash
-podman run -it --rm \
-    --userns=keep-id \
-    -e PASSWD="securepassword" \
-    -p 3390:3389/tcp \
-    -v myvolume:/home/default \
-    localhost/rdp:xfce4
 ```
