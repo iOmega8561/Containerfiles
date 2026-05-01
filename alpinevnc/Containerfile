@@ -1,0 +1,53 @@
+FROM docker.io/alpine:latest as base
+
+# Build-time arguments
+ARG REPO_URL
+
+# Metadata according to OCI standards
+LABEL org.opencontainers.image.title="Alpine VNC Desktop"
+LABEL org.opencontainers.image.description="Lightweight DE with VNC and noVNC access"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.source="${REPO_URL}"
+
+# 1. Install packages
+# 2. Generate a dbus machine-id
+# 3. Purge caches and temporary files
+RUN apk update && \
+    apk add --no-cache \
+    musl-utils \
+    musl-locales \
+    nano \
+    sudo \
+    openssh \
+    supervisor \
+    tigervnc \
+    novnc \
+    xorg-server \
+    xfce4 \
+    xfce4-terminal \
+    faenza-icon-theme \
+    firefox && \
+    dbus-uuidgen > /var/lib/dbus/machine-id && \
+    rm -rf /tmp/* /var/tmp/* /var/cache/apk/*
+
+# Create a non-root user with sudo privileges
+RUN adduser -D -u 1000 default && \
+    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
+
+USER default
+WORKDIR /home/default
+
+# Configuration for supervisord 
+# (ensure the file is in the same directory as the Containerfile)
+COPY --chown=default:default ./supervisord.conf /etc/supervisord.conf
+
+# VNC and noVNC default ports
+EXPOSE 5900/tcp 6080/tcp
+
+# Set environment variables for localization and home directory
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV HOME=/home/default
+
+# Start supervisord to manage Xvnc, noVNC, and XFCE session
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
