@@ -9,7 +9,7 @@ fi
 lc_all=${LC_ALL:-C.UTF-8}
 lang=${LANG:-C.UTF-8}
 
-cat <<EOF > /etc/profile.d/locale.sh
+sudo -E tee /etc/profile.d/locale.sh <<- EOF >> /dev/null
 export LANG="${lang}"
 export LC_ALL="${lc_all}"
 EOF
