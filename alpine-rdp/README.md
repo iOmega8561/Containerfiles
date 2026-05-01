@@ -17,9 +17,11 @@ This container provides a lightweight, ready-to-use **XFCE4** desktop environmen
 
 ```bash
 podman run -it --rm \
-    --userns=keep-id \
+    --userns=keep-id \ # Optional: Map the user id with podman rootless
     -e PASSWD="your-password" \
     -p 3389:3389/tcp \
+    -e LANG=en_US.UTF-8 \ # Optional: Override language at runtime
+    -e LC_ALL=en_US.UTF-8 \ # Optional: Override language at runtime
     -v rdp-data:/home/default \ # Optional: Mount a home directory
     localhost/alpine-rdp:latest
 ```
