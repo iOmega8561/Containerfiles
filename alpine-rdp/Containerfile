@@ -1,5 +1,17 @@
 FROM docker.io/alpine:latest as base
 
+# Build-time arguments
+ARG REPO_URL
+
+# Metadata according to OCI standards
+LABEL org.opencontainers.image.title="Alpine RDP Desktop"
+LABEL org.opencontainers.image.description="Lightweight DE with RDP access"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.source="${REPO_URL}"
+
+# 1. Install packages
+# 2. Generate a dbus machine-id
+# 3. Purge caches and temporary files
 RUN apk update && \
     apk add --no-cache --update \
     sudo \
@@ -21,15 +33,20 @@ RUN apk update && \
     dbus-uuidgen > /var/lib/dbus/machine-id && \
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/*
 
-RUN adduser -D -u 1000 default && \
-    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
-
+# Copying the container entrypoint script, then setting +x perm
+# (ensure the file is in the same directory as the Containerfile)
 COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
 RUN chmod +x /usr/local/bin/ct-entrypoint
+
+# Create a non-root user with sudo privileges
+RUN adduser -D -u 1000 default && \
+    echo "default ALL=NOPASSWD:ALL" > /etc/sudoers.d/default
 
 USER default
 WORKDIR /home/default
 
+# RDP default port
 EXPOSE 3389/tcp
+
 ENTRYPOINT ["/usr/local/bin/ct-entrypoint"]
 
