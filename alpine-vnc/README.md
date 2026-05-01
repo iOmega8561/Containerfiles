@@ -28,7 +28,7 @@ podman run -d --rm \
     -e LANG=en_US.UTF-8 \ # Optional: Override language at runtime
     -e LC_ALL=en_US.UTF-8 \ # Optional: Override language at runtime
     -v vnc-data:/home/default \ # Optional: Mount a home directory for persistence
-    localhost/alpinevnc:latest
+    localhost/alpine-vnc:latest
 ```
 
 ### Exposed Ports
