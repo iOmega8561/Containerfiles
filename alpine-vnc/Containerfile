@@ -6,8 +6,9 @@ ARG REPO_URL
 # Metadata according to OCI standards
 LABEL org.opencontainers.image.title="Alpine VNC Desktop"
 LABEL org.opencontainers.image.description="Lightweight DE with VNC and noVNC access"
+LABEL org.opencontainers.image.authors="Giuseppe Rocco"
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.source="${REPO_URL}"
+LABEL org.opencontainers.image.source=$REPO_URL
 
 # 1. Install packages
 # 2. Generate a dbus machine-id
