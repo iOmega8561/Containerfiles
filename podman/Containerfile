@@ -1,0 +1,41 @@
+FROM docker.io/alpine:latest as base
+
+# Build-time arguments
+ARG REPO_URL
+
+# Metadata according to OCI standards
+LABEL org.opencontainers.image.title="Podman"
+LABEL org.opencontainers.image.description="Lightweight Podman image with SSH server"
+LABEL org.opencontainers.image.authors="Giuseppe Rocco"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.source=$REPO_URL
+
+# Install the bare minimum to get podman and sshd working
+# Having nano and sudo is just a convenience for interactive shells
+RUN apk update && \
+    apk add --no-cache --update \
+    sudo \
+    nano \
+    openssh-server \
+    crun \
+    podman \
+    podman-compose
+
+# Generating the server RSA key
+RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
+
+# 1. Create a non-root user with sudo privileges
+# 2. Setup rootless sub-uid/gid mapping according to RedHat's podman-in-podman docs
+RUN adduser -D -u 1000 podman && \
+    echo "podman ALL=NOPASSWD:ALL" > /etc/sudoers.d/podman && \
+    echo -e "podman\npodman" | passwd podman && \
+    echo "podman:10000:5000" > /etc/subgid && \
+    echo "podman:10000:5000" > /etc/subuid
+
+WORKDIR /home/podman
+USER podman
+
+# Default SSH port outside of reserved range
+EXPOSE 22/tcp 
+
+ENTRYPOINT ["sudo", "/usr/sbin/sshd", "-D"]
