@@ -53,7 +53,7 @@ podman run -it --rm \
   -p 2222:22 \
   -v podman-data:/home/podman \
   -v podman-ssh-config:/etc/ssh \
-  podman-ssh:latest
+  localhost/podman:latest
 ```
 
 ---
@@ -85,7 +85,7 @@ Mount your own key at `/etc/ssh/ssh_host_rsa_key` **before** the container start
 podman run -it --rm \
   ... (other arguments)
   -v ./my_rsa_key:/etc/ssh/ssh_host_rsa_key \
-  -p 2222:22 podman-ssh:latest
+  -p 2222:22 localhost/podman:latest
 ```
 
 > If you need to regenerate keys on the host, simply replace the mounted file.
