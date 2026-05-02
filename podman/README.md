@@ -48,7 +48,8 @@ podman run -it --rm \
   --device=/dev/net/tun \   # Needed for netavark bridges
   --cap-add=SYS_ADMIN \
   --cap-add=NET_ADMIN \     # Allow the container to manage its netowork namespace
-  --security-opt label=disable \
+  --security-opt seccomp=unconfined \
+  --security-opt unmask=ALL \
   --userns=keep-id
   -p 2222:22 \
   -v podman-data:/home/podman \

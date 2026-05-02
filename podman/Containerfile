@@ -1,4 +1,4 @@
-FROM docker.io/alpine:latest as base
+FROM docker.io/library/debian:stable-slim as base
 
 # Build-time arguments
 ARG REPO_URL
@@ -12,32 +12,39 @@ LABEL org.opencontainers.image.source=$REPO_URL
 
 # Install the bare minimum to get podman and sshd working
 # Having nano and sudo is just a convenience for interactive shells
-RUN apk update && \
-    apk add --no-cache --update \
-    sudo \
+RUN apt update && \
+    apt install --no-install-recommends --yes \
     nano \
+    ca-certificates \
     openssh-server \
-    crun \
-    uidmapshift \
-    iptables \
+    libcap2-bin \
+    uidmap \
+    fuse-overlayfs \
+    nftables \
+    buildah \
+    aardvark-dns \
+    netavark \
+    passt \
     podman \
-    podman-compose
+    podman-compose && \
+    apt clean && rm -rf /var/lib/apt/lists/* && \
+    setcap 'cap_net_bind_service=+ep' /usr/sbin/sshd
 
-# Generating the server RSA key
-RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
-
-# 1. Create a non-root user with sudo privileges
+# 1. Create a non-root user with sudo privileges and empty password
 # 2. Setup rootless sub-uid/gid mapping according to RedHat's podman-in-podman docs
-RUN adduser -D -u 1000 podman && \
-    echo "podman ALL=NOPASSWD:ALL" > /etc/sudoers.d/podman && \
-    echo -e "podman\npodman" | passwd podman && \
+RUN useradd -U -u 1000 -m podman -s /usr/bin/bash && \
+    passwd -d podman && \
+    install -o 1000 -g 1000 -d /opt/sshd -m 700 && \
     echo "podman:10000:5000" > /etc/subgid && \
     echo "podman:10000:5000" > /etc/subuid
 
 WORKDIR /home/podman
 USER podman
 
+# Generating the server RSA key
+RUN ssh-keygen -f /opt/sshd/rsa_key -N '' -t rsa
+
 # Default SSH port outside of reserved range
 EXPOSE 22/tcp 
 
-ENTRYPOINT ["sudo", "/usr/sbin/sshd", "-D"]
+ENTRYPOINT ["/usr/sbin/sshd", "-De", "-o", "HostKey=/opt/sshd/rsa_key", "-o", "PermitEmptyPasswords=yes", "-o", "PidFile=/opt/sshd/sshd.pid"]
