@@ -11,7 +11,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.source=$REPO_URL
 
 # Install the bare minimum to get podman and sshd working
-# Having nano and sudo is just a convenience for interactive shells
+# Having nano installed is just a convenience for interactive shells
 RUN apt update && \
     apt install --no-install-recommends --yes \
     nano \
@@ -30,7 +30,7 @@ RUN apt update && \
     apt clean && rm -rf /var/lib/apt/lists/* && \
     setcap 'cap_net_bind_service=+ep' /usr/sbin/sshd
 
-# 1. Create a non-root user with sudo privileges and empty password
+# 1. Create a non-root user without privilege escalation and empty password
 # 2. Setup rootless sub-uid/gid mapping according to RedHat's podman-in-podman docs
 RUN useradd -U -u 1000 -m podman -s /usr/bin/bash && \
     passwd -d podman && \
