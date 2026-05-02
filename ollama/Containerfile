@@ -2,6 +2,16 @@
 # glibc compatibility and a familiar userspace environment.
 FROM docker.io/library/debian:stable-slim
 
+# Build-time arguments
+ARG REPO_URL
+
+# Metadata according to OCI standards
+LABEL org.opencontainers.image.title="Ollama"
+LABEL org.opencontainers.image.description="Lightweight Ollama image with CPU-only support"
+LABEL org.opencontainers.image.authors="Giuseppe Rocco"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.source=$REPO_URL
+
 # Install only the minimal runtime dependencies required to download and extract
 # the Ollama binary distribution. Clean APT metadata to keep the image small.
 RUN apt update && apt upgrade -y && \
