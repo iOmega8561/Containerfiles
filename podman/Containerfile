@@ -18,6 +18,8 @@ RUN apk update && \
     nano \
     openssh-server \
     crun \
+    uidmapshift \
+    iptables \
     podman \
     podman-compose
 
