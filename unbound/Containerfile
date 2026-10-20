@@ -5,30 +5,19 @@ ARG REPO_URL
 
 # Metadata according to OCI standards
 LABEL org.opencontainers.image.title="Unbound DNS"
-LABEL org.opencontainers.image.description="Lightweight Unbound DNS image with rootless support"
+LABEL org.opencontainers.image.description="Lightweight Unbound DNS image"
 LABEL org.opencontainers.image.authors="Giuseppe Rocco"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.source=$REPO_URL
 
-# 1. Update and install just unbound and wget
-# 2. Create the default user with GUID 1000
+# Update and install just unbound and wget
 RUN apk update && \
-    apk add --no-cache --update unbound wget && \
-    adduser -D -u 1000 default
+    apk add --no-cache --update unbound
 
-# Copy the DNS configuration and the entrypoint script
-COPY --chown=default ./unbound.conf /home/default/.config/unbound/
-COPY ./ct-entrypoint.sh /usr/local/bin/ct-entrypoint
+WORKDIR /etc/unbound
 
-# Setting +x is a must
-RUN chmod +x /usr/local/bin/ct-entrypoint
-
-WORKDIR /home/default
-USER default
-
-# Exposing both tcp and udp since Unbound supports both
-# 1053 was chosen because it lives outside the reserved space
-EXPOSE 1053/tcp 1053/udp
+# Exposing tcp/udp by default
+EXPOSE 53/tcp 53/udp
 
 # Finally set the entrypoint
-ENTRYPOINT ["/usr/local/bin/ct-entrypoint"]
+ENTRYPOINT ["/usr/sbin/unbound", "-dpc", "/etc/unbound/unbound.conf"]
