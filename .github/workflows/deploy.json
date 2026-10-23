@@ -2,7 +2,6 @@
   "services": [
     "alpine-vnc", 
     "podman",
-    "unbound",
-    "ollama"
+    "unbound"
   ]
 }
