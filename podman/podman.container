@@ -1,0 +1,50 @@
+[Unit]
+Description=Rootless Podman development environment over SSH
+
+[Container]
+Image=localhost/podman:latest
+ContainerName=podman
+AutoUpdate=local
+
+# Restrict SSH access to the host loopback interface.
+PublishPort=127.0.0.1:2222:2222
+
+# Rootless user namespace with explicit UID/GID mapping.
+UserNS=keep-id:uid=1000,gid=1000
+User=1000:1000
+
+# Persistent development environment and container storage.
+Volume=podman-data:/home/podman
+
+# Deployment-specific SSH credentials.
+Volume=%h/.config/podman-dev/ssh/ssh_host_ed25519_key:/opt/sshd/ssh_host_ed25519_key:ro,Z
+Volume=%h/.config/podman-dev/ssh/authorized_keys:/home/podman/.ssh/authorized_keys:ro,Z
+
+# Nested container engine compatibility.
+AddDevice=/dev/fuse
+AddDevice=/dev/net/tun
+AddCapability=NET_ADMIN
+AddCapability=SYS_ADMIN
+SeccompProfile=unconfined
+Unmask=ALL
+
+# Immutable root filesystem with writable runtime directories.
+ReadOnly=true
+Tmpfs=/run/user/1000:rw,nosuid,nodev,uid=1000,gid=1000,mode=0700,size=256m
+Tmpfs=/opt/sshd:rw,nosuid,nodev,noexec,uid=1000,gid=1000,mode=0700,size=1m
+
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+
+RunInit=true
+Ulimit=core=0:0
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=300
+TimeoutStopSec=60
+MemoryMax=4G
+CPUQuota=400%
+
+[Install]
+WantedBy=default.target

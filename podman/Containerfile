@@ -1,4 +1,6 @@
-FROM docker.io/library/debian:stable-slim as base
+ARG DEBIAN_VERSION=stable-slim
+
+FROM docker.io/library/debian:${DEBIAN_VERSION} AS base
 
 # Build-time arguments
 ARG REPO_URL REVISION
@@ -11,41 +13,56 @@ LABEL org.opencontainers.image.title="Podman" \
       org.opencontainers.image.source="${REPO_URL}" \
       org.opencontainers.image.revision="${REVISION}"
 
-# Install the bare minimum to get podman and sshd working
-# Having nano installed is just a convenience for interactive shells
-RUN apt update && \
-    apt install --no-install-recommends --yes \
-    nano \
-    ca-certificates \
-    openssh-server \
-    libcap2-bin \
-    uidmap \
-    fuse-overlayfs \
-    nftables \
-    buildah \
-    aardvark-dns \
-    netavark \
-    passt \
-    podman \
-    podman-compose && \
-    apt clean && rm -rf /var/lib/apt/lists/* && \
-    setcap 'cap_net_bind_service=+ep' /usr/sbin/sshd
+# Install Podman, SSH server and interactive shell utilities
+RUN apt-get update && \
+    apt-get install --no-install-recommends --yes \
+        nano \
+        ca-certificates \
+        openssh-server \
+        uidmap \
+        fuse-overlayfs \
+        nftables \
+        buildah \
+        aardvark-dns \
+        netavark \
+        passt \
+        podman \
+        podman-compose \
+        supervisor && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -f /etc/ssh/ssh_host_*
 
-# 1. Create a non-root user without privilege escalation and empty password
-# 2. Setup rootless sub-uid/gid mapping according to RedHat's podman-in-podman docs
+# 1. Create a non-root user for key-based SSH authentication
+# 2. Configure subordinate UID/GID mappings for nested rootless Podman
+# 3. Prepare SSH and runtime directories
 RUN useradd -U -u 1000 -m podman -s /usr/bin/bash && \
     passwd -d podman && \
-    install -o 1000 -g 1000 -d /opt/sshd -m 700 && \
+    install -o 1000 -g 1000 -d -m 0700 \
+        /opt/sshd \
+        /home/podman/.ssh \
+        /run/user/1000 && \
+    install -d -m 0755 /run/sshd && \
     echo "podman:10000:5000" > /etc/subgid && \
     echo "podman:10000:5000" > /etc/subuid
+
+ENV XDG_RUNTIME_DIR=/run/user/1000 \
+    ENABLE_TCP=true \
+    ENABLE_SSH=true
+
+# Preserve the runtime directory in interactive SSH sessions
+RUN printf '%s\n' \
+        'export XDG_RUNTIME_DIR=/run/user/1000' \
+        >> /home/podman/.bashrc
+
+# Configuration for supervisord 
+# (ensure the file is in the same directory as the Containerfile)
+COPY --chown=podman:podman ./supervisord.conf /etc/supervisord.conf
 
 WORKDIR /home/podman
 USER podman
 
-# Generating the server RSA key
-RUN ssh-keygen -f /opt/sshd/rsa_key -N '' -t rsa
+# Unprivileged SSH port
+EXPOSE 2222/tcp 2375/tcp
 
-# Default SSH port outside of reserved range
-EXPOSE 22/tcp 
-
-ENTRYPOINT ["/usr/sbin/sshd", "-De", "-o", "HostKey=/opt/sshd/rsa_key", "-o", "PermitEmptyPasswords=yes", "-o", "PidFile=/opt/sshd/sshd.pid"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

@@ -1,68 +1,116 @@
 # Podman (rootless Podman-in-Podman)
 
-A minimal, rootless **Debian-based** image that bundles:
-
-* **Podman** (and `podman‑compose`) – a container engine that runs without root.
-* **OpenSSH‑server** – so you can SSH into the container and run Podman commands.
-* A **default user `podman`** (UID 1000) without privilege escalation tools.
-
-The image is intentionally tiny – only the packages required for Podman and SSH. It is designed to be a drop‑in “Podman‑in‑a‑container” for homelabs, CI pipelines or any environment where you want to run Podman from inside a container.
-
-> [!WARNING]
-> **Security note** – The container ships with a default RSA host key.  
-> If you expose it to the internet or a shared network, **change it** before use.
-
----
+A lightweight Debian-based development environment providing rootless Podman,
+`podman-compose`, Buildah and an OpenSSH server. Designed for private remote
+shells and homelabs, with container storage independent of the host engine.
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| **Debian base** | Small, secure, rock-solid |
-| **Rootless Podman** | Runs as UID 1000 with sub‑uid/gid mapping (`10000–14999`) |
-| **SSH server** | `sshd` listening on port `22` (configurable via port mapping) |
-| **Default credentials** | `podman` user, RSA host key generated at build time |
-| **Lightweight** | ~330 MB |
+- Debian Trixie slim base and a non-root `podman` user (UID/GID 1000).
+- Nested rootless Podman with subordinate IDs `10000–14999`.
+- SSH on port 2222 with public-key-only authentication.
+- Deployment-specific Ed25519 host key, supplied at runtime.
+- Rootless systemd Quadlet, persistent home and read-only image filesystem.
 
----
+## Quick start
 
-## Building the Image
+Requires a Linux host with rootless Podman, Quadlet, subordinate UID/GID
+allocations covering the nested mappings, and access to `/dev/fuse` and
+`/dev/net/tun`. Nested user namespaces must be supported by the host.
 
-```bash
-# Build the image locally
-podman build --tag localhost/podman:latest .
+Build from this directory:
+
+```sh
+podman build -t localhost/podman:latest .
 ```
 
----
+Generate a unique server key and install your SSH client's **public** key:
 
-## Running the Container
-
-```bash
-podman run -it --rm \
-  --device=/dev/fuse \      # Needed for overlayFS
-  --device=/dev/net/tun \   # Needed for netavark bridges
-  --cap-add=SYS_ADMIN \
-  --cap-add=NET_ADMIN \     # Allow the container to manage its netowork namespace
-  --security-opt seccomp=unconfined \
-  --security-opt unmask=ALL \
-  --userns=keep-id
-  -p 2222:22 \
-  -v podman-data:/home/podman \
-  -v podman-ssh-config:/opt/sshd \
-  localhost/podman:latest
+```sh
+install -d -m 0700 ~/.config/podman-dev/ssh
+ssh-keygen -t ed25519 -N '' \
+  -f ~/.config/podman-dev/ssh/ssh_host_ed25519_key
+install -m 0600 /path/to/client.pub \
+  ~/.config/podman-dev/ssh/authorized_keys
 ```
 
-### Replacing the RSA Host Key
+Generate the host key only once per deployment. Never copy the client's private
+key to the server or commit any server private key to Git.
 
-Mount your own key at `/opt/sshd/rsa_key` **before** the container starts:
+Install and start the Quadlet as your regular host user:
 
-```bash
-podman run -it --rm \
-  ... (other arguments)
-  -v ./my_rsa_key:/opt/sshd/rsa_key \
-  -p 2222:22 localhost/podman:latest
+```sh
+mkdir -p ~/.config/containers/systemd
+install -m 0644 podman.container ~/.config/containers/systemd/
+systemctl --user daemon-reload
+systemctl --user start podman.service
 ```
 
-> If you need to regenerate keys on the host, simply replace the mounted file.
+The default port mapping listens only on loopback. For direct VPN access,
+replace `127.0.0.1` in `PublishPort` with the server's VPN address and restrict
+access using the host firewall. Alternatively, connect through an SSH tunnel
+on the host. Do not publish the service on all interfaces unintentionally.
 
----
+```sh
+ssh -p 2222 podman@127.0.0.1
+# Or use the VPN address if configured.
+```
+
+Verify the server fingerprint against `ssh-keygen -lf
+~/.config/podman-dev/ssh/ssh_host_ed25519_key.pub` on the host before accepting it.
+
+## Configuration and storage
+
+The `podman-data` named volume preserves the development home, including nested
+images, containers and configuration. Runtime files live in temporary filesystems.
+The SSH keys are mounted separately, read-only. Use a fresh named volume on first
+start; older volumes may contain incompatible ownership or SSH configuration.
+The nested ID range must fit inside the outer user namespace; do not recursively
+chown existing container storage to UID 1000.
+
+## Security and compatibility
+
+The Quadlet is a restrictive starting profile, not a tested universal recipe.
+It avoids privileged mode, host engine sockets, host networking and blanket
+security-policy exceptions. The outer container remains rootless, but shares the
+host kernel. Treat SSH clients and nested workloads as trusted development users.
+
+Unlike ordinary application containers, nested Podman needs working setuid
+`newuidmap`/`newgidmap` helpers. Therefore the default capability bounding set is
+retained and `NoNewPrivileges` is not enabled. Default seccomp, masked paths and
+SELinux/AppArmor policies are kept initially. Nested mounts, networking and cgroups
+may require host-specific adjustments; investigate denials before relaxing them.
+The original deployment used broader capabilities, unconfined seccomp and unmasked
+paths; these are deliberately not enabled by default in this profile.
+
+## Verification and maintenance
+
+After connecting over SSH, test the nested engine:
+
+```sh
+podman info
+podman unshare cat /proc/self/uid_map
+podman run --rm docker.io/library/alpine:latest echo OK
+```
+
+If cgroup management fails, test a workload without per-container cgroups:
+
+```sh
+podman --cgroup-manager=cgroupfs run --cgroups=disabled --rm \
+  docker.io/library/alpine:latest echo OK
+```
+
+This is a diagnostic fallback, not equivalent to full nested cgroup support.
+If rootless storage fails, check the volume ownership, ID mappings, `/dev/fuse`
+and the storage driver. For noninteractive SSH commands, set
+`XDG_RUNTIME_DIR=/run/user/1000` explicitly if it is not inherited.
+
+```sh
+journalctl --user -u podman.service -f
+```
+
+Rebuild the image and restart `podman.service` to update it. The home volume and
+SSH identity persist. To start at boot without an active login, enable lingering
+for the host user if appropriate.
+
+See [Podman Quadlet documentation](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html) and [Podman inside a container](https://www.redhat.com/en/blog/podman-inside-container) for further details.
