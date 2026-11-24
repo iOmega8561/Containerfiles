@@ -1,14 +1,15 @@
 FROM docker.io/alpine:latest
 
 # Build-time arguments
-ARG REPO_URL
+ARG REPO_URL REVISION
 
 # Metadata according to OCI standards
-LABEL org.opencontainers.image.title="Unbound DNS"
-LABEL org.opencontainers.image.description="Lightweight Unbound DNS image"
-LABEL org.opencontainers.image.authors="Giuseppe Rocco"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.source=$REPO_URL
+LABEL org.opencontainers.image.title="Unbound DNS" \
+      org.opencontainers.image.description="Lightweight Unbound DNS image" \
+      org.opencontainers.image.authors="Giuseppe Rocco" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="${REPO_URL}" \
+      org.opencontainers.image.revision="${REVISION}"
 
 # Update and install just unbound and wget
 RUN apk update && \

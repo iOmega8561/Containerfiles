@@ -1,14 +1,15 @@
 FROM docker.io/library/debian:stable-slim as base
 
 # Build-time arguments
-ARG REPO_URL
+ARG REPO_URL REVISION
 
 # Metadata according to OCI standards
-LABEL org.opencontainers.image.title="Podman"
-LABEL org.opencontainers.image.description="Lightweight Podman image with SSH server"
-LABEL org.opencontainers.image.authors="Giuseppe Rocco"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.source=$REPO_URL
+LABEL org.opencontainers.image.title="Podman" \
+      org.opencontainers.image.description="Lightweight Podman image with SSH server" \
+      org.opencontainers.image.authors="Giuseppe Rocco" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="${REPO_URL}" \
+      org.opencontainers.image.revision="${REVISION}"
 
 # Install the bare minimum to get podman and sshd working
 # Having nano installed is just a convenience for interactive shells

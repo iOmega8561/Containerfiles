@@ -22,14 +22,15 @@ RUN git clone --depth 1 --branch "${UXPLAY_VERSION}" https://github.com/FDH2/UxP
     cmake --build build --parallel && strip build/uxplay
 
 FROM docker.io/library/alpine:${ALPINE_VERSION}
-ARG UXPLAY_VERSION=v1.73.4 REPO_URL=localhost
+ARG REPO_URL REVISION UXPLAY_VERSION=v1.73.4
 
 LABEL org.opencontainers.image.title="UxPlay (rootless)" \
       org.opencontainers.image.version="${UXPLAY_VERSION}" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.authors="Giuseppe Rocco" \
       org.opencontainers.image.description="AirPlay receiver for a Linux desktop session" \
-      org.opencontainers.image.source=$REPO_URL
+      org.opencontainers.image.source="${REPO_URL}" \
+      org.opencontainers.image.revision="${REVISION}"
       
 RUN apk add --no-cache \
     libgcc \

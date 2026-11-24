@@ -1,14 +1,15 @@
 FROM docker.io/alpine:latest as base
 
 # Build-time arguments
-ARG REPO_URL
+ARG REPO_URL REVISION
 
 # Metadata according to OCI standards
-LABEL org.opencontainers.image.title="Alpine VNC Desktop"
-LABEL org.opencontainers.image.description="Lightweight DE with VNC and noVNC access"
-LABEL org.opencontainers.image.authors="Giuseppe Rocco"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.source=$REPO_URL
+LABEL org.opencontainers.image.title="Alpine VNC Desktop" \
+      org.opencontainers.image.description="Lightweight DE with VNC and noVNC access" \
+      org.opencontainers.image.authors="Giuseppe Rocco" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="${REPO_URL}" \
+      org.opencontainers.image.revision="${REVISION}"
 
 # 1. Install packages
 # 2. Generate a dbus machine-id
