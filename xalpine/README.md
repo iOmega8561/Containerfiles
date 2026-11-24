@@ -1,4 +1,4 @@
-# Alpine VNC Desktop
+# XAlpine
 
 This container provides a lightweight, ready-to-use **XFCE4** desktop environment based on Alpine Linux. It features a pre-configured **VNC** server and **noVNC** web interface, allowing remote access via standard VNC clients or any modern web browser.
 
@@ -11,8 +11,8 @@ The environment is managed by **Supervisord** for process reliability and includ
 - **Localization**: Full UTF-8 support (default `C.UTF-8`).
 
 ## Configuration
-- **User**: `default` (UID 1000) with passwordless `sudo` privileges.
-- **Home Directory**: `/home/default`
+- **User**: `desktop` (UID 1000).
+- **Home Directory**: `/home/xalpine`
 - **Init System**: Supervisord.
 
 ## Usage
@@ -21,14 +21,14 @@ The environment is managed by **Supervisord** for process reliability and includ
 
 ```bash
 podman run -d --rm \
-    --name alpinevnc \
+    --name xalpine \
     --userns keep-id \ # Optional: Map the user id with podman rootless
     -p 5900:5900 \
     -p 6080:6080 \
     -e LANG=en_US.UTF-8 \ # Optional: Override language at runtime
     -e LC_ALL=en_US.UTF-8 \ # Optional: Override language at runtime
-    -v vnc-data:/home/default \ # Optional: Mount a home directory for persistence
-    localhost/alpine-vnc:latest
+    -v vnc-data:/home/xalpine \ # Optional: Mount a home directory for persistence
+    localhost/xalpine:latest
 ```
 
 ### Exposed Ports

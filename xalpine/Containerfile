@@ -1,0 +1,53 @@
+FROM docker.io/alpine:latest
+
+# Build-time arguments
+ARG REPO_URL REVISION
+
+# Metadata according to OCI standards
+LABEL org.opencontainers.image.title="XAlpine" \
+      org.opencontainers.image.description="Lightweight desktop environment with VNC (and noVNC) access" \
+      org.opencontainers.image.authors="Giuseppe Rocco" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="${REPO_URL}" \
+      org.opencontainers.image.revision="${REVISION}"
+
+# 1. Install packages
+# 2. Generate a dbus machine-id
+# 3. Purge temporary files
+RUN apk add --no-cache \
+        musl \
+        musl-utils \
+        musl-locales \
+        nano \
+        openssh \
+        supervisor \
+        tigervnc \
+        novnc \
+        xorg-server \
+        xfce4 \
+        xfce4-terminal \
+        faenza-icon-theme \
+        firefox && \
+    dbus-uuidgen > /var/lib/dbus/machine-id && \
+    rm -rf /tmp/* /var/tmp/*
+
+# Create a non-root user
+RUN adduser -D -u 1000 xalpine
+
+# Configuration for supervisord 
+# (ensure the file is in the same directory as the Containerfile)
+COPY --chown=xalpine:xalpine ./supervisord.conf /etc/supervisord.conf
+
+# VNC and noVNC default ports
+EXPOSE 5900/tcp 6080/tcp
+
+USER xalpine
+WORKDIR /home/xalpine
+
+# Set environment variables for localization and home directory
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV HOME=/home/xalpine
+
+# Start supervisord to manage Xvnc, noVNC, and XFCE session
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
