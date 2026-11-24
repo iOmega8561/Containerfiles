@@ -1,0 +1,50 @@
+[Unit]
+Description=UxPlay AirPlay mirroring receiver
+PartOf=graphical-session.target
+Wants=pipewire.socket
+After=pipewire.socket
+
+[Container]
+Image=localhost/uxplay:latest
+ContainerName=uxplay
+Pull=never
+Network=host
+UserNS=keep-id:uid=1000,gid=1000
+User=1000:1000
+
+# Immutable root filesystem and least privilege.
+ReadOnly=true
+ReadOnlyTmpfs=false
+DropCapability=ALL
+NoNewPrivileges=true
+RunInit=true
+Tmpfs=/tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777
+ShmSize=64m
+PidsLimit=128
+Ulimit=core=0:0
+
+# Never relabel desktop or system sockets.
+Volume=%t/wayland-0:/run/user/1000/wayland-0:ro
+Volume=%t/pipewire-0:/run/user/1000/pipewire-0:ro
+Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket:ro
+# SecurityLabelDisable=true
+
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=WAYLAND_DISPLAY=wayland-0
+Environment=PIPEWIRE_REMOTE=pipewire-0
+Environment=XDG_CACHE_HOME=/tmp/.cache
+Environment=GST_REGISTRY=/tmp/gstreamer-registry.bin
+
+# Software decoding; require a per-connection password displayed in logs.
+Exec=-n UxPlay -nh -p 7000 -vs waylandsink -as pipewiresink -avdec -pw
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=120
+TimeoutStopSec=30
+MemoryMax=1G
+CPUQuota=400%
+
+[Install]
+WantedBy=graphical-session.target
