@@ -1,0 +1,42 @@
+[Unit]
+Description=Unbound recursive DNS resolver
+
+[Container]
+Image=localhost/unbound:latest
+ContainerName=unbound
+Pull=never
+AutoUpdate=local
+
+# The unprivileged user shipped by the Alpine package.
+User=unbound
+UserNS=keep-id:uid=100,gid=101
+
+# Loopback only by default; see the README to serve the LAN.
+PublishPort=127.0.0.1:1053:53/udp
+PublishPort=127.0.0.1:1053:53/tcp
+
+# Let the unprivileged user bind port 53 inside its own network namespace,
+# instead of granting NET_BIND_SERVICE. Has no effect on the host.
+Sysctl=net.ipv4.ip_unprivileged_port_start=53
+
+# Container-oriented configuration, read-only.
+Volume=%h/.config/unbound/unbound.conf:/etc/unbound/unbound.conf:ro,Z
+
+# Immutable root filesystem with nothing writable at all, and least privilege.
+ReadOnly=true
+ReadOnlyTmpfs=false
+DropCapability=ALL
+NoNewPrivileges=true
+PidsLimit=64
+Ulimit=core=0:0
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=60
+TimeoutStopSec=30
+MemoryMax=256M
+CPUQuota=200%
+
+[Install]
+WantedBy=default.target

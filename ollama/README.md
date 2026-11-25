@@ -1,77 +1,71 @@
 # Ollama (CPU-only)
 
-This container provides a minimal **CPU-only Ollama runtime** based on **Debian stable-slim**.  
-It removes all GPU-related dependencies (CUDA and Vulkan) from the official binary distribution, resulting in a **smaller and simpler image** suitable for CPU inference workloads.
-
-The container is designed for **homelab environments** and works well with **rootless container runtimes** such as Podman.
+A minimal **CPU-only Ollama runtime** based on **Debian stable-slim**. It removes the GPU libraries (CUDA, MLX and Vulkan) from the official binary distribution, resulting in a smaller and simpler image for CPU inference, and ships with a rootless Quadlet.
 
 ## Features
 
-- **CPU-only runtime** – GPU libraries (CUDA/Vulkan) are removed
-- **Minimal Debian base** – stable, glibc-based environment
-- **Rootless execution** – runs as a non-root user for improved security
-- **Persistent model directory** – models stored in a dedicated path
-- **Simple deployment** – exposes the standard Ollama API
+- CPU-only runtime: GPU libraries are removed.
+- Minimal Debian base with glibc.
+- Rootless Quadlet: non-root user, read-only root filesystem, zero Linux capabilities and no new privileges.
+- Models, key pair and cache in a single named volume.
+- API published on the host loopback only.
 
-## Building the Image
+## Requirements
 
-Build the container image with:
+- Linux with systemd and Podman with Quadlet support.
+- Enough memory for the models you run: they are memory-mapped from the volume.
 
-```bash
-podman build --tag ollama-cpu:latest .
-````
+Run all deployment commands as your regular user, without `sudo`.
 
-## Running the Container
+## Quick Start
 
-Run the container with:
+Build the image:
 
-```bash
-podman run -it --rm \
-    -p 11434:11434 \
-    localhost/ollama-cpu:latest
+```sh
+podman build --pull=always -t localhost/ollama:latest .
 ```
 
-### Example Usage
+Install and start the Quadlet:
 
-* Maps port **11434** inside the container to **11434** on the host.
-* The Ollama API will be available at:
-
-```
-http://localhost:11434
-```
-
-You can then interact with the API or CLI to download and run models.
-
-## Persistent Models
-
-By default, Ollama stores models in:
-
-```
-/home/ollama/.ollama/models
+```sh
+install -Dm644 ollama.container -t ~/.config/containers/systemd/
+systemctl --user daemon-reload
+systemctl --user start ollama.service
 ```
 
-You may want to persist this directory using a volume.
+Pull and run a model:
 
-### Example
-
-```bash
-podman run -it --rm \
-    -p 11434:11434 \
-    -v /path/to/models:/home/ollama/.ollama/models \
-    localhost/ollama-cpu:latest
+```sh
+podman exec -it ollama ollama pull qwen3:0.6b
+podman exec -it ollama ollama run qwen3:0.6b
+curl http://127.0.0.1:11434/api/tags
 ```
 
-### Notes
+To start at boot without an active login, enable lingering with `loginctl enable-linger "$USER"`.
 
-* **Persistent Storage**: Mounting the models directory prevents re-downloading models after container recreation.
-* **Rootless Friendly**: The container runs as UID `1000`, which works well with rootless Podman setups.
-* **CPU-only Environment**: GPU acceleration is intentionally removed to keep the image lightweight and reduce complexity.
+## Configuration
 
-## Use Case
+| Setting | Default |
+| --- | --- |
+| API | `127.0.0.1:11434` |
+| Persistent state | `ollama-data` volume at `/home/ollama/.ollama` |
+| Temporary files | 256 MiB tmpfs at `/tmp`, `noexec` |
+| Memory / CPU / PIDs | 8 GiB / 4 CPU equivalents / 512 |
 
-This container is ideal for:
+`MemoryMax` must leave room for the largest model you load and its context. Ollama settings such as `OLLAMA_KEEP_ALIVE` or `OLLAMA_NUM_PARALLEL` go in the Quadlet as `Environment=` lines. After editing the installed Quadlet, reload systemd and restart the service.
 
-* Homelab deployments
-* CPU-only servers
-* Rootless container environments
-* Lightweight Ollama API services
+The API has no authentication. Keep it on loopback and reach it from other containers through a shared Quadlet network, or put a reverse proxy with authentication in front of it. To serve a VPN, replace `127.0.0.1` in `PublishPort` with the VPN address and restrict it with the host firewall.
+
+## Runtime Verification
+
+```sh
+podman exec ollama grep -E '^(Cap|NoNewPrivs)' /proc/1/status   # all zero, NoNewPrivs 1
+podman exec ollama mount | grep ' on / '                          # ro
+journalctl --user -u ollama.service -f
+```
+
+## Security
+
+Ollama runs as the image's `ollama` user (UID 1000). The root filesystem is read-only; the volume and a `noexec` tmpfs are the only writable paths, and model runners are started from the read-only binary, never from `/tmp`. A minimal init reaps them. Podman's default seccomp profile and SELinux labeling stay enabled.
+
+The image downloads the latest Ollama release at build time, without a pinned version or checksum, and is not part of the monthly rebuild: rebuild it yourself to update.

@@ -1,0 +1,42 @@
+[Unit]
+Description=Ollama CPU-only inference server
+
+[Container]
+Image=localhost/ollama:latest
+ContainerName=ollama
+Pull=never
+AutoUpdate=local
+
+# The image's ollama user (UID 1000).
+UserNS=keep-id:uid=1000,gid=1000
+User=1000:1000
+
+# The API has no authentication: loopback only. Put a reverse proxy with
+# authentication in front of it, or point this at a VPN address.
+PublishPort=127.0.0.1:11434:11434
+
+# Models, the server's key pair and its cache; the only persistent state.
+Volume=ollama-data:/home/ollama/.ollama
+
+# Immutable root filesystem and least privilege.
+ReadOnly=true
+ReadOnlyTmpfs=false
+DropCapability=ALL
+NoNewPrivileges=true
+Tmpfs=/tmp:rw,noexec,nosuid,nodev,size=256m,mode=1777
+# Reap the model runners Ollama starts as child processes.
+RunInit=true
+PidsLimit=512
+Ulimit=core=0:0
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=120
+TimeoutStopSec=30
+# Models are memory-mapped: size this to the largest model you run.
+MemoryMax=8G
+CPUQuota=400%
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,54 @@
+[Unit]
+Description=XAlpine XFCE desktop over VNC and noVNC
+
+[Container]
+Image=localhost/xalpine:latest
+ContainerName=xalpine
+Pull=never
+AutoUpdate=local
+
+# The image's xalpine user (UID 1000).
+UserNS=keep-id:uid=1000,gid=1000
+User=1000:1000
+
+# VNC and noVNC ask for no password: loopback only. Replace 127.0.0.1 with
+# a VPN address to reach the desktop remotely, and restrict it with the firewall.
+PublishPort=127.0.0.1:5900:5900
+PublishPort=127.0.0.1:6080:6080
+
+# The home directory is the desktop's only persistent state.
+Volume=xalpine-home:/home/xalpine
+
+# Immutable root filesystem and least privilege. Supervisord is PID 1 and
+# reaps the session's processes, so no init is added.
+ReadOnly=true
+ReadOnlyTmpfs=false
+DropCapability=ALL
+NoNewPrivileges=true
+
+# X11 socket and lock, compiled keymaps, the D-Bus session bus.
+Tmpfs=/tmp:rw,noexec,nosuid,nodev,size=512m,mode=1777
+Tmpfs=/run/user/1000:rw,noexec,nosuid,nodev,mode=0700,size=64m,U
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+
+# Firefox's content sandbox creates a user namespace and chroots into it.
+# Without CAP_SYS_CHROOT in the container's bounding set the chroot fails
+# and every tab crashes, so use its seccomp-only sandbox instead.
+Environment=MOZ_ASSUME_USER_NS=0
+
+# Firefox needs more shared memory than the 64 MiB default.
+ShmSize=1g
+# Threads count too: Firefox alone runs a few hundred.
+PidsLimit=2048
+Ulimit=core=0:0
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=120
+TimeoutStopSec=30
+MemoryMax=4G
+CPUQuota=400%
+
+[Install]
+WantedBy=default.target

@@ -108,7 +108,6 @@ To update, review upstream releases, adjust `UXPLAY_VERSION` if needed, then reb
 podman tag localhost/uxplay:latest localhost/uxplay:rollback
 podman build --pull=always --no-cache -t localhost/uxplay:latest .
 systemctl --user restart uxplay.service
-./verify.sh
 ```
 
 Restore the rollback tag to `localhost/uxplay:latest` and restart if necessary. Version tags are pinned, but base images and package repositories are not digest- or snapshot-locked.
@@ -129,7 +128,7 @@ For verbose GStreamer logs, temporarily add `Environment=GST_DEBUG=3` to the Qua
 
 ## Project Status & License
 
-This is a reference deployment, not an end-to-end tested release. `verify.sh` checks runtime configuration, not actual AirPlay playback. Test discovery, audio and video on your host before relying on it.
+This is a reference deployment, not an end-to-end tested release. Test discovery, audio and video on your host before relying on it.
 
 UxPlay is GPL-3.0 licensed; dependencies retain their respective licenses. No separate license has been selected for these deployment files. Redistributing built images requires compliance with applicable license and corresponding-source obligations.
 
